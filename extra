@@ -1,0 +1,104 @@
+var working = false;
+ var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]    {0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+$('.login').on('submit', function(e) {
+  e.preventDefault();
+  if (working) return;
+  working = true;
+  var $this = $(this), $state = $this.find('button > .state');
+  $this.addClass('loading');
+  $state.html('Authenticating');
+    var email = $('#email').value;
+    var password =$('#password').value;
+    var errors = [];
+    if (!ck_email.test(email)) {
+      errors[errors.length] = "You must enter a valid email 
+      address.";
+     }
+
+     if (password=='') {
+      errors[errors.length] = "You must enter the password ";
+     }
+
+     if (errors.length > 0) {        
+      reportErrors(errors);
+      return false;
+     }else{
+  setTimeout(function() {
+    $this.addClass('ok');
+    $state.html('Welcome back!');
+    setTimeout(function() {
+      $state.html('Log in');
+      $this.removeClass('ok loading');
+      working = false;
+    }, 4000);
+  }, 3000);}
+});
+function reportErrors(errors){
+     var msg = "Please Enter Valide Data...\n";
+     for (var i = 0; i<errors.length; i++) {
+     var numError = i + 1;
+      msg += "\n" + numError + ". " + errors[i];
+    }
+     $('#error').text($msg);
+    }
+    
+    
+    
+/*************************************************************************************/
+<script type="text/javascript">
+window.onload = function () {
+
+  var dps = [
+    {x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},{x: 0, y: 0},
+  ]; // dataPoints
+
+    var chart = new CanvasJS.Chart("chartContainer",{
+    title :{
+    text: ""
+    },
+    axisX: {						
+        title: "Time period"
+    },
+    axisY: {						
+    	title: "CO2 level in ppm"
+    },
+    data: [{
+    type: "line",
+    dataPoints: dps
+    }]
+  });
+var xVal = dps.length +1;
+var yVal =15;
+var updateInterval = 5000;
+//var dataLength = 10; // number of dataPoints visible at any point
+
+var updateChart = function (count) {
+  $.getJSON("data.php", function (result) {
+    //alert(result);
+    $.each(result,function(key,value) {
+      dps.push({
+        x: key,
+        y: value
+      });
+      //xVal++;
+    });
+  });
+  dps.shift();
+  chart.render();
+  //dps.length=0;
+
+  if (dps.length >  20 )
+  {
+    dps.shift();
+  }
+};
+
+// generates first set of dataPoints
+updateChart(dataLength);
+
+// update chart after specified time.
+setInterval(function(){updateChart()}, updateInterval);
+
+}
+</script>
+    
